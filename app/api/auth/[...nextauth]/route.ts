@@ -1,14 +1,16 @@
-import "server-only"
-import NextAuth from "next-auth"
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-const handler = NextAuth({
-    providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-          })
-    ]
-})
+export const authOptions = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+  ],
+  // Add any other Next-Auth configuration options here
+};
 
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
