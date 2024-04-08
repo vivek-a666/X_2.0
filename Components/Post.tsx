@@ -82,7 +82,7 @@ function PostComponent({ post }: Props) {
           {replies.map(reply => (
             <div key={reply._id} className='relative flex space-x-2'>
                 <hr className='absolute left-5 top-10 h-8 border-x border-gray-700/30' />
-              <img className='mt-2 h-7 w-7 object-cover rounded-full' src={reply.profileImg} alt="" />
+              <img className='mt-2 h-7 w-7 object-cover rounded-full' src={reply.profileImg || 'https://www.easy-profile.com/support.html?controller=attachment&task=download&tmpl=component&id=2352'} alt="" />
               <div>
               <div className='flex items-center space-x-1'>
                 <p className='mr-1 font-bold'>{reply.username}</p>
