@@ -1,5 +1,3 @@
-// feed.tsx
-"use client";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import Tweetbox from "./Tweetbox";
@@ -17,7 +15,8 @@ function Feed({ posts: postsProp }: Props) {
 
   const handleRefresh = async () => {
     const refreshToast = toast.loading("Wait a sec..");
-    const posts = await fetchPosts();
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+    const posts = await fetchPosts(baseUrl);
     setPosts(posts);
     toast.success("Feed Updated!", {
       id: refreshToast,

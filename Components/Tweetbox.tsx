@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
+import React, { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
 import {
   CalendarIcon,
   FaceSmileIcon,
@@ -13,22 +13,22 @@ import { Post } from "@/typings";
 import { fetchPosts } from "@/utils/fetchPosts";
 import toast from "react-hot-toast";
 
-interface Props {
+interface TweetboxProps {
   posts: Post[];
   setPosts: Dispatch<SetStateAction<Post[]>>;
 }
 
-function Tweetbox({ posts, setPosts }: Props) {
+const Tweetbox: React.FC<TweetboxProps> = ({ posts, setPosts }) => {
   const { data: session } = useSession();
   const [showImageInput, setShowImageInput] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
-  const [image, setImage] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (imageInputRef.current?.files?.[0]) {
-      setImage(imageInputRef.current.files[0]);
+      setImageUrl(URL.createObjectURL(imageInputRef.current.files[0]));
       setShowImageInput(false);
     }
   };
@@ -40,7 +40,7 @@ function Tweetbox({ posts, setPosts }: Props) {
       text: input,
       username: session?.user?.name || "Unknown User",
       profileImg: session?.user?.image || "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg",
-      image: image ? URL.createObjectURL(image) : undefined,
+      image: imageUrl || undefined,
       _rev: "",
       _type: "post",
       blockTweet: false
@@ -59,12 +59,12 @@ function Tweetbox({ posts, setPosts }: Props) {
         throw new Error("Failed to add post");
       }
 
-      const newPosts = await fetchPosts();
-      setPosts([...posts, {
-        _id: Math.random().toString(), ...postInfo,
-        _createdAt: "",
-        _updatedAt: ""
-      }]);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      if (!baseUrl) {
+        throw new Error('NEXT_PUBLIC_BASE_URL is not defined');
+      }
+      const newPosts = await fetchPosts(baseUrl);
+      setPosts([...newPosts]);
 
       toast.success("Posted!");
     } catch (error) {
@@ -72,7 +72,7 @@ function Tweetbox({ posts, setPosts }: Props) {
       toast.error("Failed to post tweet");
     } finally {
       setInput("");
-      setImage(null);
+      setImageUrl(null);
     }
   };
 
@@ -85,7 +85,7 @@ function Tweetbox({ posts, setPosts }: Props) {
     <div className="flex space-x-2 p-5">
       <img
         className="h-14 w-14 object-cover rounded-full mt-4"
-        src={session?.user?.image || "https://example.com/default-avatar.jpg"}
+        src={session?.user?.image || "https://pbs.twimg.com/profile_images/1683899100922511378/5lY42eHs_400x400.jpg"}
         alt=""
       />
       <div className="flex flex-1 items-center pl-2">
@@ -113,7 +113,7 @@ function Tweetbox({ posts, setPosts }: Props) {
               <FaceSmileIcon className="h-5 w-5" />
               <CalendarIcon className="h-5 w-5" />
               <MapPinIcon className="h-5 w-5" />
-            </div>
+              </div>
             <button
               type="submit"
               disabled={!input.trim() || !session}
@@ -135,10 +135,10 @@ function Tweetbox({ posts, setPosts }: Props) {
               </button>
             </form>
           )}
-          {image && (
+          {imageUrl && (
             <img
               className="mt-10 h-40 w-full rounded-xl object-contain shadow-lg"
-              src={URL.createObjectURL(image)}
+              src={imageUrl}
               alt=""
             />
           )}
