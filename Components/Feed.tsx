@@ -14,7 +14,7 @@ function Feed({ posts: postsProp }: Props) {
   const [posts, setPosts] = useState<Post[]>(postsProp);
 
   const handleRefresh = async () => {
-    const refreshToast = toast.loading("Wait a sec..");
+    const refreshToast = toast.loading("Hold On..");
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
     const posts = await fetchPosts(baseUrl);
     setPosts(posts);
